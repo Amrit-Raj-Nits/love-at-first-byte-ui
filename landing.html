@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup - Dating App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-box">
+            <h2>Tell us about yourself</h2>
+            <form id="profileForm">
+                <input type="text" id="user_name" placeholder="Username" required readonly>
+                <input type="text" id="name" placeholder="Name" required>
+                <select id="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="number" id="age" placeholder="Age" required>
+                <input type="text" id="city" placeholder="City" required>
+                <br/>
+                <select id="smoker" required>
+                    <option value="">Smoking status</option>
+                    <option value="yes">Do you smoke?</option>
+                    <option value="no">I do not smoke</option>
+                    <option value="occasional">Occasionally</option>
+                </select>
+                <select id="drinker" required>
+                    <option value="">Drinking status</option>
+                    <option value="yes">Yes, I drink</option>
+                    <option value="no">No, I do not drink</option>
+                    <option value="occasional">Occasionally</option>
+                </select>
+                <input type="number" id="age_preference" placeholder="Age Preferences" required>
+                <select id="gender_preference" required>
+                    <option value="">Select partner preference</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <select id="drinker_preference" required>
+                    <option value="">Partner drinking preference</option>
+                    <option value="yes">Yes, I drink</option>
+                    <option value="no">No, I do not drink</option>
+                    <option value="occasional">Occasionally</option>
+                </select>
+                <select id="smoker_preference" required>
+                    <option value="">Partner smoking preference</option>
+                    <option value="yes">Yes, I smoke</option>
+                    <option value="no">No, I do not smoke</option>
+                    <option value="occasional">Occasionally</option>
+                </select>
+                <br/>
+                <input type="text" id="profile_image" placeholder="Profile Image URL" required>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve username from local storage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUsername = localStorage.getItem('username');
+            if (savedUsername) {
+                document.getElementById('user_name').value = savedUsername; // Populate the username field
+            }
+            console.log('UserName : ', savedUsername);
+
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const user_name = document.getElementById('user_name').value;
+                const name = document.getElementById('name').value;
+                const gender = document.getElementById('gender').value;
+                const age = document.getElementById('age').value;
+                const city = document.getElementById('city').value;
+                const smoker = document.getElementById('smoker').value;
+                const drinker = document.getElementById('drinker').value;
+                const age_preference = document.getElementById('age_preference').value;
+                const gender_preference = document.getElementById('gender_preference').value;
+                const drinker_preference = document.getElementById('drinker_preference').value;
+                const smoker_preference = document.getElementById('smoker_preference').value;
+                const profile_image = document.getElementById('profile_image').value;
+
+                // Create the JSON object based on the form input
+                const userData = {
+                    user_name: user_name,
+                    name: name,
+                    gender: gender,
+                    age: parseInt(age), // Ensure it's a number
+                    city: city,
+                    smoker: smoker,
+                    drinker: drinker,
+                    age_preference: parseInt(age_preference), // Ensure it's a number
+                    gender_preference: gender_preference,
+                    drinker_preference: drinker_preference,
+                    smoker_preference: smoker_preference,
+                    profile_image: profile_image
+                };
+
+                // API call to save the profile
+                fetch('http://localhost:8080/api/v1/user/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = 'profile.html'; // Redirect to profile view
+                    } else {
+                        alert('Profile submission failed. Please try again.');
+                    }
+                }).catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+</body>
+</html>
