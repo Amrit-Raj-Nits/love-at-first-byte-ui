@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Matching - Dating App</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Style for icons (Heart and Logout) */
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-icon, .logout-icon {
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .heart-icon {
+            font-size: 24px;
+            position: relative;
+        }
+
+        .logout-icon {
+            font-size: 24px;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Popup styling */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .popup-content img {
+            max-width: 100px;
+            border-radius: 50%;
+        }
+
+        .popup-content h3 {
+            margin-top: 10px;
+        }
+
+        .popup-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #ff4b5c;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Icon container for Heart (notifications) and Logout -->
+    <div class="icon-container">
+        <div class="notification-icon" id="notificationIcon">
+            <span class="heart-icon">❤️</span>
+            <span class="notification-count" id="notificationCount">0</span>
+            <div class="dropdown" id="notificationDropdown"></div>
+        </div>
+        <div class="logout-icon" id="logoutIcon">
+            <span class="human-face-icon">👤</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="profile-card" class="profile-card">
+            <img id="profileImage" src="" alt="Profile Image">
+            <h3 id="profileName"></h3>
+            <p id="profileDetails"></p>
+            <div class="buttons">
+                <button id="dislikeButton">Dislike</button>
+                <button id="likeButton">Like</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup for displaying user profile details -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-content" id="popupContent">
+            <img id="popupProfileImage" src="" alt="Profile Image">
+            <h3 id="popupProfileName"></h3>
+            <p id="popupProfileDetails"></p>
+            <button id="closePopupButton">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let profiles = [];  // This will hold the profiles from the backend
+        let currentProfileIndex = 0;
+        let likedByUsers = [];  // Users who liked your profile
+
+        // Function to fetch profiles from the backend API
+        async function fetchProfiles() {
+            try {
+                const savedUsername = localStorage.getItem('username');
+                const response = await fetch('http://localhost:8080/api/v1/user/matches/' + savedUsername + '/10/0');  // Call the correct API
+                if (!response.ok) {
+                    throw new Error(`An error occurred: ${response.statusText}`);
+                }
+                profiles = await response.json();  // Parse the response as JSON
+                if (profiles.length > 0) {
+                    displayProfile();  // Display the first profile
+                } else {
+                    alert('No profiles found.');
+                }
+            } catch (error) {
+                console.error('Error fetching profiles:', error);
+            }
+        }
+
+        // Function to display the current profile
+        function displayProfile() {
+            if (currentProfileIndex < profiles.length) {
+                const profile = profiles[currentProfileIndex];
+                document.getElementById('profileImage').src = profile.profile_image;  // Set profile image
+                document.getElementById('profileName').innerText = profile.name;  // Set profile name
+                document.getElementById('profileDetails').innerText = `Age: ${profile.age}, Gender: ${profile.gender}, City: ${profile.city}`;  // Set other details
+
+                const profileCard = document.getElementById('profile-card');
+                profileCard.classList.remove('swipe-right', 'swipe-left');
+                profileCard.classList.add('pop-in');
+
+                setTimeout(() => {
+                    profileCard.classList.remove('pop-in');
+                }, 500);
+            } else {
+                alert('No more profiles!');
+            }
+        }
+
+        // Function to handle the 'Like' action
+        async function likeProfile() {
+            const profileCard = document.getElementById('profile-card');
+            const profile = profiles[currentProfileIndex];  // Get the current profile to like
+            const savedUsername = localStorage.getItem('username');  // Get the "liked_by" user (current user)
+
+            try {
+                // Call the like API
+                const response = await fetch(`http://localhost:8080/api/v1/user/likes/${savedUsername}/${profile.user_name}`, {
+                    method: 'GET'  // Adjust method based on API spec (if it's POST or PUT, modify accordingly)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to like profile: ${response.statusText}`);
+                }
+
+                // After liking, move to the next profile
+                profileCard.classList.add('swipe-right');
+                currentProfileIndex++;
+                setTimeout(displayProfile, 500);
+            } catch (error) {
+                console.error('Error liking profile:', error);
+            }
+        }
+
+        // Function to handle the 'Dislike' action
+        async function dislikeProfile() {
+            const profileCard = document.getElementById('profile-card');
+            const profile = profiles[currentProfileIndex];  // Get the current profile to dislike
+            const savedUsername = localStorage.getItem('username');  // Get the "disliked_by" user (current user)
+
+            try {
+                // Call the dislike API
+                const response = await fetch(`http://localhost:8080/api/v1/user/dislikes/${savedUsername}/${profile.user_name}`, {
+                    method: 'GET'  // Adjust method based on API spec (if it's POST or PUT, modify accordingly)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to dislike profile: ${response.statusText}`);
+                }
+
+                // After disliking, move to the next profile
+                profileCard.classList.add('swipe-left');
+                currentProfileIndex++;
+                setTimeout(displayProfile, 500);
+            } catch (error) {
+                console.error('Error disliking profile:', error);
+            }
+        }
+
+        // Function to fetch users who liked your profile and populate the dropdown
+        async function fetchLikedByUsers() {
+            try {
+                const savedUsername = localStorage.getItem('username');
+                const response = await fetch(`http://localhost:8080/api/v1/user/likeUsers/${savedUsername}`);
+                if (!response.ok) {
+                    throw new Error(`An error occurred: ${response.statusText}`);
+                }
+
+                const likedUsers = await response.json();  // Parse the response as JSON
+                updateLikedByNotification(likedUsers);
+            } catch (error) {
+                console.error('Error fetching liked-by users:', error);
+            }
+        }
+
+        // Update notification count and dropdown with liked-by users
+        function updateLikedByNotification(likedUsers) {
+            const notificationCount = document.getElementById('notificationCount'); 
+            const notificationDropdown = document.getElementById('notificationDropdown'); 
+            
+            // likedUsers is a map, where key is userName, and value is displayName
+            const userEntries = Object.entries(likedUsers);
+
+            // Update the notification count
+            notificationCount.innerText = userEntries.length;
+
+            // Clear previous items in the dropdown
+            notificationDropdown.innerHTML = '';
+
+            // Add liked-by users to the dropdown
+            userEntries.forEach(([userName, displayName]) => {
+                const item = document.createElement('div');
+                item.classList.add('dropdown-item');
+                item.innerText = displayName;  // Display the displayName in the dropdown
+                item.dataset.userName = userName;  // Store userName in a data attribute
+                item.addEventListener('click', () => fetchProfileDetails(userName));  // Use userName for fetching profile
+                notificationDropdown.appendChild(item);
+            });
+        }
+
+
+        // Function to fetch profile details when a user is clicked in the dropdown
+        async function fetchProfileDetails(userName) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/v1/user/${userName}`);
+                if (!response.ok) {
+                    throw new Error(`An error occurred: ${response.statusText}`);
+                }
+
+                const profile = await response.json();  // Parse the response as JSON
+                displayProfilePopup(profile);  // Show the profile details in a popup
+            } catch (error) {
+                console.error('Error fetching profile details:', error);
+            }
+        }
+
+        // Function to display profile details in a popup
+        function displayProfilePopup(profile) {
+            document.getElementById('popupProfileImage').src = profile.profile_image;  // Set profile image
+            document.getElementById('popupProfileName').innerText = profile.name;  // Set profile name
+            document.getElementById('popupProfileDetails').innerText = `Age: ${profile.age}, Gender: ${profile.gender}, City: ${profile.city}`;  // Set other details
+
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.style.display = 'flex';  // Show popup
+
+            // Close popup on button click
+            document.getElementById('closePopupButton').addEventListener('click', function() {
+                popupOverlay.style.display = 'none';
+            });
+        }
+
+        // Toggle dropdown visibility for likes
+        document.getElementById('notificationIcon').addEventListener('click', function() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('active');
+        });
+
+        // Logout function
+        document.getElementById('logoutIcon').addEventListener('click', function() {
+            // Clear local storage and redirect to login
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        });
+
+        // Fetch profiles and liked-by users when the page loads
+        fetchProfiles();
+        fetchLikedByUsers();
+
+        // Add event listeners for like and dislike buttons
+        document.getElementById('likeButton').addEventListener('click', likeProfile);
+        document.getElementById('dislikeButton').addEventListener('click', dislikeProfile);
+    </script>
+</body>
+</html>
