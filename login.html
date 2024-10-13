@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dating App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login to Dating App</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Add a link to the Sign Up page -->
+        <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+    
+            // API call to authenticate the user
+            fetch(`http://localhost:8080/api/v1/auth/authenticate/${username}/${password}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Authentication failed: ${response.statusText}`);
+                    }
+                    console.log('Response : ', response)
+                    return response.json();  // Parse the JSON response
+                })
+                .then(data => {
+                    if (data === true) {  // Check if authentication was successful
+                        // Store username in local storage
+                        localStorage.setItem('username', username);
+    
+                        // Make an additional API call to check if user profile exists
+                        fetch(`http://localhost:8080/api/v1/user/${username}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Error fetching user profile: ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
+                            .then(userData => {
+                                console.log('Received userData:', userData);  // Log the userData to inspect its structure
+
+                                // Check if the response is empty or invalid
+                                if (!userData || userData === null || userData === undefined || userData.id === null) {
+                                    console.log('User data is empty or invalid. Redirecting to landing page.');
+                                    window.location.href = 'landing.html';  // Redirect to landing page
+                                } else {
+                                    console.log('User data exists. Redirecting to profile page.');
+                                    window.location.href = 'profile.html';  // Redirect to profiles page
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching user profile:', error);
+                                alert('An error occurred while checking the user profile.');
+                            });
+                    } else {
+                        // If authentication failed, show an error message
+                        alert('Login failed. Please check your credentials.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during authentication:', error);
+                    alert('An error occurred during the login process.');
+                });
+        });
+    </script>
+    
+</body>
+</html>
