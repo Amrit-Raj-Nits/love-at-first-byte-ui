@@ -1,0 +1,193 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f2f2f2;
+}
+
+.container {
+    width: 70%; /* 70% of the screen width */
+    height: 70%; /* 70% of the screen height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    box-shadow: 0 100px 100px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.profile-card {
+    text-align: center;
+    transition: transform 0.4s ease, opacity 0.5s ease;
+    opacity: 1;
+    width: 100%; /* Make the card fill the container */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Pop-up effect for new profile */
+.pop-in {
+    opacity: 0;
+    transform: scale(0.5); /* Start small */
+    animation: pop-in 0.4s forwards; /* Animation for popping up */
+}
+
+/* Keyframes for pop-in animation */
+@keyframes pop-in {
+    100% {
+        opacity: 1;
+        transform: scale(1); /* Full size at end of animation */
+    }
+}
+
+.profile-card img {
+    border-radius: 50%;
+    width: 350px;
+    height: 350px;
+    object-fit: cover;
+}
+
+.profile-card h3 {
+    margin-top: 30px;
+}
+
+.profile-card p {
+    margin: 5px 0;
+}
+
+.buttons {
+    margin-top: 25px;
+}
+
+.buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* Swipe Right (Like) - Circular page-turn effect */
+.swipe-right {
+    transform: translateX(300px) rotate(30deg); /* Move right and rotate clockwise */
+    opacity: 0;
+}
+
+/* Swipe Left (Dislike) - Circular page-turn effect */
+.swipe-left {
+    transform: translateX(-300px) rotate(-30deg); /* Move left and rotate counter-clockwise */
+    opacity: 0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Make the body take full height of the viewport */
+    background-color: #f2f2f2; /* Light background for contrast */
+}
+
+.welcome-container {
+    text-align: center; /* Center the text */
+    padding: 20px;
+    background-color: white; /* White background for the container */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    border-radius: 10px; /* Rounded corners */
+    width: 70%; /* Take 70% of the screen width */
+    max-width: 400px; /* Max width to prevent overflow on larger screens */
+}
+
+h1 {
+    font-size: 2em; /* Increase heading size */
+    margin-bottom: 10px; /* Space below the heading */
+}
+
+p {
+    margin-bottom: 20px; /* Space below the paragraph */
+}
+
+button {
+    padding: 10px 20px; /* Button padding */
+    background-color: #007BFF; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners for button */
+    cursor: pointer; /* Pointer on hover */
+    font-size: 1em; /* Button text size */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of viewport */
+    background-color: #f2f2f2; /* Light background color */
+}
+
+.login-container {
+    text-align: center; /* Center text */
+    padding: 20px;
+    background-color: white; /* White background for the container */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    border-radius: 10px; /* Rounded corners */
+    width: 70%; /* Width of the container */
+    max-width: 400px; /* Max width to prevent overflow on larger screens */
+}
+
+h2 {
+    margin-bottom: 20px; /* Space below the heading */
+    font-size: 2em; /* Heading size */
+}
+
+input {
+    width: 100%; /* Full width for input fields */
+    padding: 10px; /* Padding for input fields */
+    margin: 10px 0; /* Margin above and below */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+}
+
+button {
+    padding: 10px 20px; /* Button padding */
+    background-color: #007BFF; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer on hover */
+    font-size: 1em; /* Button text size */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
